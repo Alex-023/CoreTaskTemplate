@@ -13,7 +13,11 @@ public class UserDaoHibernateImpl implements UserDao {
 
     }
 
-
+    private void closeSession(Session session) {
+        if (session != null && session.isOpen()) {
+            session.close();
+        }
+    }
     @Override
     public void createUsersTable() {
         Session session = null;
@@ -21,18 +25,16 @@ public class UserDaoHibernateImpl implements UserDao {
             session = Util.getSession();
             Transaction transaction = session.beginTransaction();
             Query query = session.createSQLQuery("CREATE TABLE USERSTABLE ( id BIGINT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(255), lastName VARCHAR(255), age TINYINT)").addEntity(User.class);
-            transaction.commit();
             query.executeUpdate();
-            session.close();
+            transaction.commit();
             System.out.println("Таблица создана");
         } catch (Exception e){
             System.out.println("Ошибка создания таблицы. Возможно таблица уже создана");
             System.out.println(e);
+            e.printStackTrace();
             System.out.println("----------------------------------------------------------------------------");
         } finally {
-            if (session != null && session.isOpen()) {
-                session.close();
-            }
+            closeSession(session);
         }
 
 
@@ -45,16 +47,16 @@ public class UserDaoHibernateImpl implements UserDao {
             session = Util.getSession();
             Transaction transaction = session.beginTransaction();
             Query query = session.createSQLQuery("DROP TABLE IF EXISTS USERSTABLE");
-            transaction.commit();
             query.executeUpdate();
-            session.close();
+            transaction.commit();
             System.out.println("Таблица удалена.");
         } catch (Exception e) {
-            System.out.println("Ошибка удаления таблицы");;
+            System.out.println("Ошибка удаления таблицы");
+            System.out.println(e);
+            e.printStackTrace();
+            System.out.println("----------------------------------------------------------------------------");
         } finally {
-            if (session != null && session.isOpen()){
-                session.close();
-            }
+            closeSession(session);
         }
     }
 
@@ -74,10 +76,10 @@ public class UserDaoHibernateImpl implements UserDao {
         } catch (Exception e){
             System.out.println("Ошибка сохранения!");
             System.out.println(e);
+            e.printStackTrace();
+            System.out.println("----------------------------------------------------------------------------");
         } finally {
-            if (session != null && session.isOpen()){
-                session.close();
-            }
+            closeSession(session);
         }
 
     }
@@ -88,16 +90,15 @@ public class UserDaoHibernateImpl implements UserDao {
         try {
             session = Util.getSession();
             Transaction transaction = session.beginTransaction();
-//            User user = (User) session.get(User.class, id);
             session.delete(session.get(User.class, id));
             transaction.commit();
         } catch (Exception e) {
             System.out.println("Ошибка удаления!");
             System.out.println(e);
+            e.printStackTrace();
+            System.out.println("----------------------------------------------------------------------------");
         } finally {
-            if (session != null && session.isOpen()) {
-                session.close();
-            }
+            closeSession(session);
         }
     }
 
@@ -115,11 +116,12 @@ public class UserDaoHibernateImpl implements UserDao {
             transaction.commit();
         } catch (Exception e) {
             System.out.println("Ошибка получения списка!");
+            System.out.println(e);
+            e.printStackTrace();
+            System.out.println("----------------------------------------------------------------------------");
             users = new ArrayList<>();
         } finally {
-            if (session != null && session.isOpen()) {
-                session.close();
-            }
+            closeSession(session);
         }
 
         return users;
@@ -137,11 +139,12 @@ public class UserDaoHibernateImpl implements UserDao {
             query.executeUpdate();
             transaction.commit();
         } catch (Exception e) {
-            System.out.println("Ошибка очистки таблицы");;
+            System.out.println("Ошибка очистки таблицы");
+            System.out.println(e);
+            e.printStackTrace();
+            System.out.println("----------------------------------------------------------------------------");
         } finally {
-            if (session != null && session.isOpen()){
-                session.close();
-            }
+            closeSession(session);
         }
     }
 }
